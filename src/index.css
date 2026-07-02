@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--page-bg);
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --page-bg: #f5f9ff;
+  --page-bg-alt: #ebf3ff;
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-muted: rgba(239, 246, 255, 0.95);
+  --input-bg: #ffffff;
+  --border: rgba(148, 163, 184, 0.24);
+  --heading: #0f172a;
+  --text: #334155;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.1);
+  --accent-soft-hover: rgba(37, 99, 235, 0.16);
+  --accent-border: rgba(37, 99, 235, 0.28);
+  --toggle-bg: #ffffff;
+  --toggle-text: #0f172a;
+  --toggle-track: rgba(191, 219, 254, 0.95);
+  --toggle-thumb: #2563eb;
+  --toggle-border: rgba(148, 163, 184, 0.34);
+  --row-hover: rgba(37, 99, 235, 0.04);
+  --status-online: #15803d;
+  --status-online-soft: rgba(34, 197, 94, 0.12);
+  --status-online-border: rgba(34, 197, 94, 0.3);
+  --status-maintenance: #c2410c;
+  --status-maintenance-soft: rgba(249, 115, 22, 0.12);
+  --status-maintenance-border: rgba(249, 115, 22, 0.3);
+  --status-offline: #b91c1c;
+  --status-offline-soft: rgba(239, 68, 68, 0.12);
+  --status-offline-border: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --page-bg: #07111f;
+  --page-bg-alt: #0b1322;
+  --surface: rgba(15, 23, 42, 0.86);
+  --surface-muted: rgba(15, 23, 42, 0.96);
+  --input-bg: rgba(15, 23, 42, 0.85);
+  --border: rgba(148, 163, 184, 0.14);
+  --heading: #f8fafc;
+  --text: #cbd5e1;
+  --muted: #94a3b8;
+  --accent: #60a5fa;
+  --accent-soft: rgba(96, 165, 250, 0.14);
+  --accent-soft-hover: rgba(96, 165, 250, 0.2);
+  --accent-border: rgba(96, 165, 250, 0.26);
+  --toggle-bg: rgba(15, 23, 42, 0.92);
+  --toggle-text: #f8fafc;
+  --toggle-track: rgba(59, 130, 246, 0.16);
+  --toggle-thumb: #93c5fd;
+  --toggle-border: rgba(148, 163, 184, 0.22);
+  --row-hover: rgba(255, 255, 255, 0.03);
+  --status-online: #4ade80;
+  --status-online-soft: rgba(34, 197, 94, 0.14);
+  --status-online-border: rgba(34, 197, 94, 0.32);
+  --status-maintenance: #fb923c;
+  --status-maintenance-soft: rgba(251, 146, 60, 0.14);
+  --status-maintenance-border: rgba(251, 146, 60, 0.32);
+  --status-offline: #f87171;
+  --status-offline-soft: rgba(248, 113, 113, 0.14);
+  --status-offline-border: rgba(248, 113, 113, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--page-bg);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
