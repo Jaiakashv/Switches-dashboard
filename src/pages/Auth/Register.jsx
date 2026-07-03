@@ -27,10 +27,10 @@ export default function Register() {
   }
 
   return (
-    <div className="w-full max-w-md bg-[var(--surface)] p-8 rounded-2xl shadow-xl border border-[var(--border)]">
-      <div className="flex flex-col items-center mb-8">
-        <Network className="w-12 h-12 text-blue-500 mb-2" />
-        <h1 className="text-2xl font-bold">Create Account</h1>
+    <div className="w-full max-w-md bg-[var(--surface)] p-6 sm:p-8 rounded-2xl shadow-xl border border-[var(--border)]">
+      <div className="flex flex-col items-center mb-6 sm:mb-8">
+        <Network className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 mb-2" />
+        <h1 className="text-xl sm:text-2xl font-bold">Create Account</h1>
         <p className="text-[var(--text-muted)] text-sm">Join the Network Management System</p>
       </div>
 
@@ -47,7 +47,7 @@ export default function Register() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -58,7 +58,7 @@ export default function Register() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -69,7 +69,7 @@ export default function Register() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>

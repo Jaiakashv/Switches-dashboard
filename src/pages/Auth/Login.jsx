@@ -26,10 +26,10 @@ export default function Login() {
   }
 
   return (
-    <div className="w-full max-w-md bg-[var(--surface)] p-8 rounded-2xl shadow-xl border border-[var(--border)]">
-      <div className="flex flex-col items-center mb-8">
-        <Network className="w-12 h-12 text-blue-500 mb-2" />
-        <h1 className="text-2xl font-bold">Welcome Back</h1>
+    <div className="w-full max-w-md bg-[var(--surface)] p-6 sm:p-8 rounded-2xl shadow-xl border border-[var(--border)]">
+      <div className="flex flex-col items-center mb-6 sm:mb-8">
+        <Network className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 mb-2" />
+        <h1 className="text-xl sm:text-2xl font-bold">Welcome Back</h1>
         <p className="text-[var(--text-muted)] text-sm">Sign in to your account</p>
       </div>
 
@@ -46,7 +46,7 @@ export default function Login() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -54,13 +54,13 @@ export default function Login() {
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-sm font-medium">Password</label>
-            <Link to="/forgot-password" className="text-sm text-blue-500 hover:underline">Forgot password?</Link>
+            <Link to="/forgot-password" className="text-xs sm:text-sm text-blue-500 hover:underline">Forgot password?</Link>
           </div>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>

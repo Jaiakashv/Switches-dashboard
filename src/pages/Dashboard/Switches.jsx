@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { SearchBar } from '../../components/SearchBar'
 import { SwitchTable } from '../../components/SwitchTable'
 import { Pagination } from '../../components/Pagination'
@@ -6,39 +6,42 @@ import { useSwitches } from '../../hooks/useSwitches'
 import { useDebounce } from '../../hooks/useDebounce'
 
 const STATUS_OPTIONS = ['Online', 'Maintenance', 'Offline']
-const PAGE_SIZE = 5
+const PAGE_SIZE_OPTIONS = [5, 10, 15]
 
 export default function Switches() {
-  const { switches, isLoading, error, actionError, handleStatusChange } = useSwitches()
-  
+  const [limit, setLimit] = useState(5)
+  const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
-  
   const [activeMenuId, setActiveMenuId] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
 
-  const filteredSwitches = useMemo(() => {
-    const query = debouncedSearch.trim().toLowerCase()
-    if (!query) return switches
+  const offset = (currentPage - 1) * limit
 
-    return switches.filter((device) => 
-      device.model.toLowerCase().includes(query) ||
-      device.id.toLowerCase().includes(query)
-    )
-  }, [debouncedSearch, switches])
+  const { switches, isLoading, error, actionError, handleStatusChange, reload, total } = useSwitches()
 
-  const totalPages = Math.max(1, Math.ceil(filteredSwitches.length / PAGE_SIZE))
-  const visibleCount = filteredSwitches.length
+  const totalPages = Math.max(1, Math.ceil(total / limit))
 
-  const paginatedSwitches = useMemo(() => {
-    // Make sure current page is valid when filtering changes
-    const validPage = Math.min(currentPage, totalPages)
-    const startIndex = (validPage - 1) * PAGE_SIZE
-    return filteredSwitches.slice(startIndex, startIndex + PAGE_SIZE)
-  }, [currentPage, totalPages, filteredSwitches])
+  useEffect(() => {
+    reload({
+      limit,
+      offset,
+      search: debouncedSearch.trim() || undefined
+    })
+  }, [limit, offset, debouncedSearch, reload])
 
   const handleSearchChange = useCallback((value) => {
     setSearch(value)
+    setCurrentPage(1)
+    setActiveMenuId(null)
+  }, [])
+
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page)
+    setActiveMenuId(null)
+  }, [])
+
+  const handleLimitChange = useCallback((newLimit) => {
+    setLimit(newLimit)
     setCurrentPage(1)
     setActiveMenuId(null)
   }, [])
@@ -72,12 +75,12 @@ export default function Switches() {
       <SearchBar
         value={search}
         onChange={handleSearchChange}
-        resultCount={visibleCount}
+        resultCount={total}
       />
 
       <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
         <SwitchTable
-          devices={paginatedSwitches}
+          devices={switches}
           activeMenuId={activeMenuId}
           statusOptions={STATUS_OPTIONS}
           onToggleMenu={handleToggleMenu}
@@ -86,16 +89,15 @@ export default function Switches() {
           isLoading={isLoading}
           errorMessage={error}
         />
-        {!isLoading && !error && visibleCount > 0 && (
+        {!isLoading && !error && total > 0 && (
           <Pagination
             currentPage={Math.min(currentPage, totalPages)}
             totalPages={totalPages}
-            totalItems={visibleCount}
-            pageSize={PAGE_SIZE}
-            onPageChange={(page) => {
-              setCurrentPage(page)
-              setActiveMenuId(null)
-            }}
+            totalItems={total}
+            pageSize={limit}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handleLimitChange}
           />
         )}
       </div>

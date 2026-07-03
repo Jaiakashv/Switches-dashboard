@@ -141,39 +141,39 @@ export default function Analytics() {
   if (error) return <div className="p-8 text-red-500">{error}</div>
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Analytics</h2>
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Analytics</h2>
         <p className="text-[var(--text-muted)] text-sm mt-1">System performance and metrics</p>
       </div>
 
-      <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-sm h-96">
+      <div className="bg-[var(--surface)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm h-64 sm:h-80 md:h-96">
         {chartData && <Line options={chartOptions} data={chartData} />}
       </div>
 
       {selectedPoint && (
-        <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Detailed Metrics - {format(new Date(selectedPoint.timestamp), 'PPpp')}</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div className="p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
-              <div className="text-sm text-[var(--text-muted)] mb-1">CPU Usage</div>
-              <div className="text-xl font-medium">{selectedPoint.cpuUsage}%</div>
+        <div className="bg-[var(--surface)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Detailed Metrics - {format(new Date(selectedPoint.timestamp), 'PPpp')}</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] mb-1">CPU Usage</div>
+              <div className="text-lg sm:text-xl font-medium">{selectedPoint.cpuUsage}%</div>
             </div>
-            <div className="p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
-              <div className="text-sm text-[var(--text-muted)] mb-1">Memory</div>
-              <div className="text-xl font-medium">{selectedPoint.memoryUsage}%</div>
+            <div className="p-3 sm:p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] mb-1">Memory</div>
+              <div className="text-lg sm:text-xl font-medium">{selectedPoint.memoryUsage}%</div>
             </div>
-            <div className="p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
-              <div className="text-sm text-[var(--text-muted)] mb-1">Temperature</div>
-              <div className="text-xl font-medium">{selectedPoint.temperature}°C</div>
+            <div className="p-3 sm:p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] mb-1">Temperature</div>
+              <div className="text-lg sm:text-xl font-medium">{selectedPoint.temperature}°C</div>
             </div>
-            <div className="p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
-              <div className="text-sm text-[var(--text-muted)] mb-1">Latency</div>
-              <div className="text-xl font-medium">{selectedPoint.latency}ms</div>
+            <div className="p-3 sm:p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] mb-1">Latency</div>
+              <div className="text-lg sm:text-xl font-medium">{selectedPoint.latency}ms</div>
             </div>
-            <div className="p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
-              <div className="text-sm text-[var(--text-muted)] mb-1">Packet Loss</div>
-              <div className="text-xl font-medium">{selectedPoint.packetLoss}%</div>
+            <div className="p-3 sm:p-4 bg-[var(--page-bg)] rounded-xl border border-[var(--border)]">
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] mb-1">Packet Loss</div>
+              <div className="text-lg sm:text-xl font-medium">{selectedPoint.packetLoss}%</div>
             </div>
           </div>
         </div>

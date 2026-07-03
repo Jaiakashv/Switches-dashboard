@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react'
-import { getMe, login as apiLogin, register as apiRegister } from '../api/authApi'
+import { getMe, login as apiLogin, register as apiRegister, sendWelcomeEmail } from '../api/authApi'
 
 export const AuthContext = createContext()
 
@@ -47,6 +47,13 @@ export const AuthProvider = ({ children }) => {
     const data = await apiRegister(name, email, password)
     localStorage.setItem('auth_token', data.token)
     setUser(data)
+    
+    // Send welcome email after successful registration
+    try {
+      await sendWelcomeEmail(email, name)
+    } catch (error) {
+      console.error('Failed to send welcome email:', error)
+    }
   }
 
   const logout = () => {

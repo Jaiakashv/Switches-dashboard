@@ -19,10 +19,10 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="w-full max-w-md bg-[var(--surface)] p-8 rounded-2xl shadow-xl border border-[var(--border)]">
-      <div className="flex flex-col items-center mb-8">
-        <Network className="w-12 h-12 text-blue-500 mb-2" />
-        <h1 className="text-2xl font-bold">Reset Password</h1>
+    <div className="w-full max-w-md bg-[var(--surface)] p-6 sm:p-8 rounded-2xl shadow-xl border border-[var(--border)]">
+      <div className="flex flex-col items-center mb-6 sm:mb-8">
+        <Network className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 mb-2" />
+        <h1 className="text-xl sm:text-2xl font-bold">Reset Password</h1>
         <p className="text-[var(--text-muted)] text-sm mt-1 text-center">
           Enter your email and we'll send you instructions to reset your password.
         </p>
@@ -41,7 +41,7 @@ export default function ForgotPassword() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 bg-[var(--page-bg)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
             disabled={isSubmitting || message !== ''}
           />

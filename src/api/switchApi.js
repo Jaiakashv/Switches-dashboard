@@ -1,7 +1,7 @@
 import api from './index'
 
-export const fetchSwitches = () => {
-  return api.get('/switches')
+export const fetchSwitches = (params = {}) => {
+  return api.get('/switches', { params })
 }
 
 export const createSwitch = (switchData) => {

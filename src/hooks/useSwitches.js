@@ -6,23 +6,24 @@ export const useSwitches = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
+  const [total, setTotal] = useState(0)
 
-  const loadSwitches = useCallback(async () => {
+  const loadSwitches = useCallback(async (paginationParams = {}) => {
     setIsLoading(true)
     setError('')
     try {
-      const data = await fetchSwitches()
-      setSwitches(data)
+      const response = await fetchSwitches(paginationParams)
+      console.log('API Response:', response)
+      // Axios interceptor returns response.data, so response is already the backend response object
+      setSwitches(response.data || response || [])
+      setTotal(response.total || 0)
     } catch (err) {
+      console.error('API Error:', err)
       setError(err.message || 'Failed to load switches.')
     } finally {
       setIsLoading(false)
     }
   }, [])
-
-  useEffect(() => {
-    loadSwitches()
-  }, [loadSwitches])
 
   const handleStatusChange = async (deviceId, status) => {
     setActionError('')
@@ -38,5 +39,5 @@ export const useSwitches = () => {
     }
   }
 
-  return { switches, isLoading, error, actionError, handleStatusChange, reload: loadSwitches }
+  return { switches, isLoading, error, actionError, handleStatusChange, reload: loadSwitches, total }
 }
