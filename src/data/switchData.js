@@ -29,7 +29,7 @@ export const switchData = [
   },
   {
     model: 'HPE Aruba 2930F',
-    physicalDevice: 'Floor 2 Closet',
+    physicalDevice: 'Flooor 2 Closet',
     id: 'SW-1005',
     config: 'Client access and voice VLANs',
     status: 'Maintenance',
