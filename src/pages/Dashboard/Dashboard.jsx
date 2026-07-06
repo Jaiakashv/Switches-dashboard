@@ -1,16 +1,22 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { StatsGrid } from '../../components/StatsGrid'
+import { CircularProgressLoader } from '../../components/CircularProgressLoader'
 import { useSwitches } from '../../hooks/useSwitches'
 import { useCountAnimation } from '../../hooks/useCountAnimation'
 import { Activity, Network, AlertTriangle, ShieldCheck } from 'lucide-react'
 
 export default function Dashboard() {
   const { switches, isLoading, reload } = useSwitches()
+  const [showContent, setShowContent] = useState(false)
 
   // Load all switches for dashboard stats (no pagination limit)
   useEffect(() => {
     reload({ limit: 1000, offset: 0 })
   }, [reload])
+
+  useEffect(() => {
+    if (isLoading) setShowContent(false)
+  }, [isLoading])
 
   const totalCount = switches.length
   const onlineCount = useMemo(() => switches.filter(s => s.status === 'Online').length, [switches])
@@ -29,16 +35,8 @@ export default function Dashboard() {
         <p className="text-[var(--text-muted)] text-sm mt-1">System status and quick metrics</p>
       </div>
 
-      {isLoading ? (
-        <div className="animate-pulse flex space-x-4">
-          <div className="flex-1 space-y-4 py-1">
-            <div className="h-4 bg-blue-400 rounded w-3/4"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-blue-400 rounded"></div>
-              <div className="h-4 bg-blue-400 rounded w-5/6"></div>
-            </div>
-          </div>
-        </div>
+      {!showContent ? (
+        <CircularProgressLoader loading={isLoading} onComplete={() => setShowContent(true)} />
       ) : (
         <>
           <StatsGrid

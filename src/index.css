@@ -20,7 +20,9 @@
   --border: rgba(148, 163, 184, 0.24);
   --heading: #0f172a;
   --text: #334155;
+  --text-muted: #64748b;
   --muted: #64748b;
+  --surface-hover: rgba(37, 99, 235, 0.06);
   --accent: #2563eb;
   --accent-soft: rgba(37, 99, 235, 0.1);
   --accent-soft-hover: rgba(37, 99, 235, 0.16);
@@ -52,7 +54,9 @@
   --border: rgba(148, 163, 184, 0.14);
   --heading: #f8fafc;
   --text: #cbd5e1;
+  --text-muted: #94a3b8;
   --muted: #94a3b8;
+  --surface-hover: rgba(255, 255, 255, 0.05);
   --accent: #60a5fa;
   --accent-soft: rgba(96, 165, 250, 0.14);
   --accent-soft-hover: rgba(96, 165, 250, 0.2);

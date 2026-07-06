@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { useTheme } from '../../hooks/useTheme'
 
 export default function Settings() {
-  const { theme, toggleTheme } = useTheme()
   const [emailPrefs, setEmailPrefs] = useState({
     marketing: false,
     securityAlerts: true,
@@ -27,23 +25,6 @@ export default function Settings() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Theme Settings */}
-        <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Appearance</h3>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Dark Mode</p>
-              <p className="text-sm text-[var(--text-muted)]">Toggle application color scheme</p>
-            </div>
-            <button
-              onClick={toggleTheme}
-              className={`w-12 h-6 rounded-full transition-colors ${theme === 'dark' ? 'bg-blue-500' : 'bg-gray-300'} relative`}
-            >
-              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${theme === 'dark' ? 'translate-x-7' : 'translate-x-1'}`} />
-            </button>
-          </div>
-        </div>
-
         {/* Notification Settings */}
         <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-sm">
           <h3 className="text-lg font-semibold mb-4">Notifications</h3>
