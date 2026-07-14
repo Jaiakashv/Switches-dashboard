@@ -17,17 +17,13 @@ export default function Switches() {
 
   const offset = (currentPage - 1) * limit
 
-  const { switches, isLoading, error, actionError, handleStatusChange, reload, total } = useSwitches()
+  const { switches, isLoading, error, actionError, handleStatusChange, addSwitch, reload, total } = useSwitches({
+    limit,
+    offset,
+    search: debouncedSearch.trim() || undefined
+  })
 
   const totalPages = Math.max(1, Math.ceil(total / limit))
-
-  useEffect(() => {
-    reload({
-      limit,
-      offset,
-      search: debouncedSearch.trim() || undefined
-    })
-  }, [limit, offset, debouncedSearch, reload])
 
   const handleSearchChange = useCallback((value) => {
     setSearch(value)
@@ -88,6 +84,9 @@ export default function Switches() {
           onCloseMenu={() => setActiveMenuId(null)}
           isLoading={isLoading}
           errorMessage={error}
+          addSwitch={addSwitch}
+          reload={() => reload({ limit, offset, search: debouncedSearch.trim() || undefined })}
+          searchTerm={debouncedSearch}
         />
         {!isLoading && !error && total > 0 && (
           <Pagination

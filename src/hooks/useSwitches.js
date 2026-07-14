@@ -1,43 +1,80 @@
-import { useState, useEffect, useCallback } from 'react'
-import { fetchSwitches, updateSwitchStatus } from '../api/switchApi'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { fetchSwitches, updateSwitchStatus, createSwitch } from '../api/switchApi'
 
-export const useSwitches = () => {
-  const [switches, setSwitches] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
+export const useSwitches = (params = {}) => {
+  const queryClient = useQueryClient()
   const [actionError, setActionError] = useState('')
-  const [total, setTotal] = useState(0)
 
-  const loadSwitches = useCallback(async (paginationParams = {}) => {
-    setIsLoading(true)
-    setError('')
-    try {
-      const response = await fetchSwitches(paginationParams)
-      console.log('API Response:', response)
-      // Axios interceptor returns response.data, so response is already the backend response object
-      setSwitches(response.data || response || [])
-      setTotal(response.total || 0)
-    } catch (err) {
-      console.error('API Error:', err)
-      setError(err.message || 'Failed to load switches.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const { limit, offset, search } = params
+
+  const {
+    data,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['switches', { limit, offset, search }],
+    queryFn: async () => {
+      const response = await fetchSwitches({ limit, offset, search })
+      return response
+    },
+  })
+
+  const switches = data?.data || data || []
+  const total = data?.total || 0
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => updateSwitchStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['switches'] })
+    },
+    onError: (err) => {
+      setActionError(err.message || 'Failed to update status.')
+    },
+  })
+
+  const addMutation = useMutation({
+    mutationFn: (switchData) => createSwitch(switchData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['switches'] })
+    },
+    onError: (err) => {
+      setActionError(err.message || 'Failed to add switch.')
+    },
+  })
 
   const handleStatusChange = async (deviceId, status) => {
     setActionError('')
     try {
-      const updatedSwitch = await updateSwitchStatus(deviceId, status)
-      setSwitches((current) => 
-        current.map((device) => device.id === deviceId ? updatedSwitch : device)
-      )
+      await statusMutation.mutateAsync({ id: deviceId, status })
       return true
     } catch (err) {
-      setActionError(err.message || 'Failed to update status.')
       return false
     }
   }
 
-  return { switches, isLoading, error, actionError, handleStatusChange, reload: loadSwitches, total }
+  const handleAddSwitch = async (switchData) => {
+    setActionError('')
+    try {
+      await addMutation.mutateAsync(switchData)
+      return true
+    } catch (err) {
+      return false
+    }
+  }
+
+  const reload = () => {
+    queryClient.invalidateQueries({ queryKey: ['switches'] })
+  }
+
+  return {
+    switches,
+    isLoading,
+    error: error?.message || '',
+    actionError,
+    handleStatusChange,
+    addSwitch: handleAddSwitch,
+    reload,
+    total,
+  }
 }
