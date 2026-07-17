@@ -11,3 +11,11 @@ export const createSwitch = (switchData) => {
 export const updateSwitchStatus = (id, status) => {
   return api.patch(`/switches/${id}/status`, { status })
 }
+
+export const updateSwitch = (id, switchData) => {
+  return api.patch(`/switches/${id}`, switchData)
+}
+
+export const deleteSwitch = (id) => {
+  return api.delete(`/switches/${id}`)
+}

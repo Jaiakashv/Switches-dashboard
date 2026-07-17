@@ -1,7 +1,7 @@
 import { memo, useState, useEffect } from 'react'
 import { SwitchRow } from './SwitchRow'
-import { Download, Plus, X, AlertTriangle } from 'lucide-react'
-import { fetchSwitches } from '../api/switchApi'
+import { Download, Plus, X, AlertTriangle, Trash2, Edit } from 'lucide-react'
+import { fetchSwitches, updateSwitch, deleteSwitch } from '../api/switchApi'
 
 function SwitchTableComponent({
   devices,
@@ -18,6 +18,8 @@ function SwitchTableComponent({
 }) {
   const [isExporting, setIsExporting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
+  const [editingSwitch, setEditingSwitch] = useState(null)
   const [formData, setFormData] = useState({
     model: '',
     physicalDevice: '',
@@ -140,6 +142,67 @@ function SwitchTableComponent({
     }
   }
 
+  const handleUpdateClick = (device) => {
+    setEditingSwitch(device)
+    setFormData({
+      model: device.model,
+      physicalDevice: device.physicalDevice,
+      id: device.id,
+      config: device.config,
+      status: device.status
+    })
+    setIsUpdateModalOpen(true)
+  }
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault()
+    setFormError('')
+    
+    if (!formData.model.trim()) return setFormError('Model is required.')
+    if (!formData.physicalDevice.trim()) return setFormError('Physical Device is required.')
+    if (!formData.id.trim()) return setFormError('ID is required.')
+    if (isIdDuplicate && formData.id !== editingSwitch.id) return setFormError('A switch with this ID already exists.')
+    if (!formData.config.trim()) return setFormError('Config is required.')
+    if (!statusOptions.includes(formData.status)) return setFormError('Please select a valid status.')
+
+    setIsSubmitting(true)
+    try {
+      await updateSwitch(editingSwitch.id, {
+        model: formData.model.trim(),
+        physicalDevice: formData.physicalDevice.trim(),
+        id: formData.id.trim(),
+        config: formData.config.trim(),
+        status: formData.status
+      })
+
+      setFormData({
+        model: '',
+        physicalDevice: '',
+        id: '',
+        config: '',
+        status: 'Online'
+      })
+      setIsUpdateModalOpen(false)
+      setEditingSwitch(null)
+      if (reload) reload()
+    } catch (err) {
+      setFormError(err.message || 'Failed to update switch.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteClick = async (deviceId) => {
+    if (!window.confirm('Are you sure you want to delete this switch?')) return
+    
+    try {
+      await deleteSwitch(deviceId)
+      if (reload) reload()
+    } catch (err) {
+      alert('Failed to delete switch: ' + (err.message || 'Unknown error'))
+    }
+  }
+
   return (
     <div className="w-full">
       {/* Table Toolbar */}
@@ -176,18 +239,19 @@ function SwitchTableComponent({
               <th className="px-3 sm:px-5 py-3 sm:py-4 font-medium hidden md:table-cell">Config</th>
               <th className="px-3 sm:px-5 py-3 sm:py-4 font-medium">Status</th>
               <th className="px-3 sm:px-5 py-3 sm:py-4 font-medium">Action</th>
+              <th className="px-3 sm:px-5 py-3 sm:py-4 font-medium">Modify</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
             {isLoading ? (
               <tr>
-                <td className="px-3 sm:px-5 py-8 sm:py-12 text-center text-[var(--muted)]" colSpan={6}>
+                <td className="px-3 sm:px-5 py-8 sm:py-12 text-center text-[var(--muted)]" colSpan={7}>
                   Loading switches from Redis...
                 </td>
               </tr>
             ) : errorMessage ? (
               <tr>
-                <td className="px-3 sm:px-5 py-8 sm:py-12 text-center text-[var(--status-offline)]" colSpan={6}>
+                <td className="px-3 sm:px-5 py-8 sm:py-12 text-center text-[var(--status-offline)]" colSpan={7}>
                   {errorMessage}
                 </td>
               </tr>
@@ -201,11 +265,13 @@ function SwitchTableComponent({
                   onToggleMenu={onToggleMenu}
                   onStatusChange={onStatusChange}
                   onCloseMenu={onCloseMenu}
+                  onUpdateClick={() => handleUpdateClick(device)}
+                  onDeleteClick={() => handleDeleteClick(device.id)}
                 />
               ))
             ) : (
               <tr>
-                <td className="px-3 sm:px-5 py-8 sm:py-12 text-center text-[var(--muted)]" colSpan={6}>
+                <td className="px-3 sm:px-5 py-8 sm:py-12 text-center text-[var(--muted)]" colSpan={7}>
                   No switches match your search.
                 </td>
               </tr>
@@ -332,6 +398,133 @@ function SwitchTableComponent({
                   className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? 'Adding...' : 'Add Switch'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Update Switch Modal */}
+      {isUpdateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-backdrop">
+          <div className="w-full max-w-lg rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl flex flex-col max-h-full overflow-hidden animate-modal">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-[var(--heading)]">Update Switch</h3>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">Modify switch details</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUpdateModalOpen(false)
+                  setEditingSwitch(null)
+                  setFormError('')
+                }}
+                className="rounded-xl p-2 text-[var(--text-muted)] hover:text-[var(--heading)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateSubmit} className="space-y-4 overflow-y-auto flex-1 pr-1">
+              {formError && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs sm:text-sm text-red-500">
+                  {formError}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[var(--text)] uppercase tracking-wider">Switch ID / Serial</label>
+                <input
+                  type="text"
+                  name="id"
+                  value={formData.id}
+                  onChange={handleFormChange}
+                  placeholder="e.g. SW-009"
+                  className={`w-full rounded-xl border ${isIdDuplicate && formData.id !== editingSwitch?.id ? 'border-red-500/80 focus:border-red-500 focus:ring-red-500/20' : 'border-[var(--border)] focus:border-[var(--accent-border)] focus:ring-[var(--accent-soft)]'} bg-[var(--input-bg)] px-3.5 py-2.5 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:ring-4`}
+                  required
+                />
+                {isIdDuplicate && formData.id !== editingSwitch?.id && (
+                  <div className="flex items-center gap-1.5 mt-1 text-xs text-red-500 font-semibold animate-pulse">
+                    <AlertTriangle className="w-4 h-4 text-red-500" />
+                    <span>This serial ID already exists</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-[var(--text)] uppercase tracking-wider">Model</label>
+                  <input
+                    type="text"
+                    name="model"
+                    value={formData.model}
+                    onChange={handleFormChange}
+                    placeholder="e.g. Cisco Catalyst 9300"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--input-bg)] px-3.5 py-2.5 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-border)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-[var(--text)] uppercase tracking-wider">Physical Device</label>
+                  <input
+                    type="text"
+                    name="physicalDevice"
+                    value={formData.physicalDevice}
+                    onChange={handleFormChange}
+                    placeholder="e.g. gi1/0/24"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--input-bg)] px-3.5 py-2.5 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-border)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[var(--text)] uppercase tracking-wider">Config / Description</label>
+                <textarea
+                  name="config"
+                  value={formData.config}
+                  onChange={handleFormChange}
+                  placeholder="e.g. VLAN 10, Port 1-24 Active"
+                  rows={3}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--input-bg)] px-3.5 py-2.5 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-border)] focus:ring-4 focus:ring-[var(--accent-soft)] resize-none"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[var(--text)] uppercase tracking-wider">Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleFormChange}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--input-bg)] px-3.5 py-2.5 text-sm text-[var(--heading)] outline-none transition focus:border-[var(--accent-border)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+                >
+                  {statusOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 border-t border-[var(--border)] pt-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsUpdateModalOpen(false)
+                    setEditingSwitch(null)
+                    setFormError('')
+                  }}
+                  className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--surface-hover)] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || (isIdDuplicate && formData.id !== editingSwitch?.id)}
+                  className="rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                >
+                  {isSubmitting ? 'Updating...' : 'Update Switch'}
                 </button>
               </div>
             </form>
