@@ -1,21 +1,61 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+
+const defaultEmailPrefs = {
+  marketing: false,
+  securityAlerts: true,
+  weeklyReports: false
+}
+
+const defaultNotificationPrefs = {
+  push: true,
+  sms: false
+}
+
+const loadStoredPrefs = () => {
+  if (typeof window === 'undefined') {
+    return {
+      emailPrefs: defaultEmailPrefs,
+      notificationPrefs: defaultNotificationPrefs
+    }
+  }
+
+  try {
+    const storedPrefs = JSON.parse(localStorage.getItem('userPreferences') || '{}')
+
+    return {
+      emailPrefs: { ...defaultEmailPrefs, ...storedPrefs.emailPrefs },
+      notificationPrefs: { ...defaultNotificationPrefs, ...storedPrefs.notificationPrefs }
+    }
+  } catch {
+    return {
+      emailPrefs: defaultEmailPrefs,
+      notificationPrefs: defaultNotificationPrefs
+    }
+  }
+}
 
 export default function Settings() {
-  const [emailPrefs, setEmailPrefs] = useState({
-    marketing: false,
-    securityAlerts: true,
-    weeklyReports: false
-  })
+  const initialPrefs = loadStoredPrefs()
+  const [emailPrefs, setEmailPrefs] = useState(initialPrefs.emailPrefs)
+  const [notificationPrefs, setNotificationPrefs] = useState(initialPrefs.notificationPrefs)
+  const isInitialRender = useRef(true)
 
-  const [notificationPrefs, setNotificationPrefs] = useState({
-    push: true,
-    sms: false
-  })
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false
+      return
+    }
 
-  const handleSave = () => {
-    // In a real application, you would save this to the backend API or localStorage
-    alert('Settings saved successfully!')
-  }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userPreferences', JSON.stringify({
+        emailPrefs,
+        notificationPrefs
+      }))
+    }
+
+    toast.success('Saved your preference')
+  }, [emailPrefs, notificationPrefs])
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -99,14 +139,9 @@ export default function Settings() {
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-end">
-        <button 
-          onClick={handleSave}
-          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-        >
-          Save Preferences
-        </button>
+        <p className="text-sm text-[var(--text-muted)]">Changes are saved automatically.</p>
       </div>
     </div>
   )
