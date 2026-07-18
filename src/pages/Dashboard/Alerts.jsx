@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { fetchAlerts, generateMockAlert, acknowledgeAlert } from '../../api/alertApi'
 import { format } from 'date-fns'
 import { AlertCircle, CheckCircle, Clock } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function Alerts() {
   const [alerts, setAlerts] = useState([])
@@ -9,6 +10,7 @@ export default function Alerts() {
   const [error, setError] = useState('')
   const [filterSeverity, setFilterSeverity] = useState('All')
   const [filterStatus, setFilterStatus] = useState('All')
+  const [searchTerm, setSearchTerm] = useState('')
 
   const loadAlerts = async () => {
     try {
@@ -29,8 +31,10 @@ export default function Alerts() {
     try {
       await generateMockAlert()
       loadAlerts()
+      toast.success('Added mock alert')
     } catch (err) {
       setError('Failed to generate alert')
+      toast.error('Failed to generate alert')
     }
   }
 
@@ -47,9 +51,12 @@ export default function Alerts() {
     return alerts.filter(alert => {
       const matchSeverity = filterSeverity === 'All' || alert.severity === filterSeverity
       const matchStatus = filterStatus === 'All' || alert.status === filterStatus
-      return matchSeverity && matchStatus
+      const matchSearch = searchTerm === '' || 
+        alert.switchId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        alert.clusterName.toLowerCase().includes(searchTerm.toLowerCase())
+      return matchSeverity && matchStatus && matchSearch
     })
-  }, [alerts, filterSeverity, filterStatus])
+  }, [alerts, filterSeverity, filterStatus, searchTerm])
 
   const getSeverityColor = (severity) => {
     switch (severity) {
@@ -86,6 +93,13 @@ export default function Alerts() {
 
       {/* Filters */}
       <div className="flex gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search by switch ID or cluster..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:border-blue-500 flex-1"
+        />
         <select 
           value={filterSeverity} 
           onChange={(e) => setFilterSeverity(e.target.value)}
@@ -109,6 +123,29 @@ export default function Alerts() {
         </select>
       </div>
 
+      {/* Severity Explanation */}
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)] p-4 text-sm">
+        <h3 className="font-semibold text-[var(--heading)] mb-2">Severity Levels</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[var(--text-muted)]">
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-red-500/10 text-red-500 border-red-500/20 mb-1">Critical</span>
+            <p className="text-xs">Immediate attention required - system failure or critical service down</p>
+          </div>
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-orange-500/10 text-orange-500 border-orange-500/20 mb-1">High</span>
+            <p className="text-xs">Urgent attention needed - service degradation or potential failure</p>
+          </div>
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-yellow-500/10 text-yellow-500 border-yellow-500/20 mb-1">Medium</span>
+            <p className="text-xs">Warning - performance issues or non-critical errors</p>
+          </div>
+          <div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-blue-500/10 text-blue-500 border-blue-500/20 mb-1">Low</span>
+            <p className="text-xs">Informational - minor issues or system notifications</p>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
@@ -117,9 +154,9 @@ export default function Alerts() {
                 <th className="px-6 py-4 font-medium text-[var(--text-muted)]">Severity</th>
                 <th className="px-6 py-4 font-medium text-[var(--text-muted)]">Cluster</th>
                 <th className="px-6 py-4 font-medium text-[var(--text-muted)]">Switch ID</th>
+                <th className="px-6 py-4 font-medium text-[var(--text-muted)]">Message</th>
                 <th className="px-6 py-4 font-medium text-[var(--text-muted)]">Status</th>
                 <th className="px-6 py-4 font-medium text-[var(--text-muted)]">Timestamp</th>
-                <th className="px-6 py-4 font-medium text-[var(--text-muted)] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -139,6 +176,11 @@ export default function Alerts() {
                     </td>
                     <td className="px-6 py-4 font-medium">{alert.clusterName}</td>
                     <td className="px-6 py-4">{alert.switchId}</td>
+                    <td className="px-6 py-4 max-w-xs">
+                      <div className="truncate" title={alert.message || 'No message'}>
+                        {alert.message || 'No message'}
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {alert.status === 'Resolved' ? (
@@ -152,19 +194,6 @@ export default function Alerts() {
                     <td className="px-6 py-4 text-[var(--text-muted)] flex items-center gap-2">
                       <Clock className="w-4 h-4" />
                       {format(new Date(alert.timestamp), 'PPpp')}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      {!alert.acknowledgedState && (
-                        <button
-                          onClick={() => handleAcknowledge(alert.id)}
-                          className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
-                        >
-                          Acknowledge
-                        </button>
-                      )}
-                      {alert.acknowledgedState && (
-                        <span className="text-[var(--text-muted)] text-sm">Acknowledged</span>
-                      )}
                     </td>
                   </tr>
                 ))
